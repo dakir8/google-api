@@ -160,7 +160,7 @@ class GooglePlayAPI(object):
                                     "X-DFE-SmallestScreenWidthDp": "320",
                                     "X-DFE-Filter-Level": "3",
                                     #"Accept-Encoding": "",
-                                    "X-DFE-No-Prefetch": True,
+                                    "X-DFE-No-Prefetch": "True",
                                     "Host": "android.clients.google.com"}
 
             if datapost is not None:
