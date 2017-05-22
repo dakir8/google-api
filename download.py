@@ -33,6 +33,9 @@ doc = m.docV2
 vc = doc.details.appDetails.versionCode
 ot = doc.offer[0].offerType
 
+print ('doc.offer[0]={}'.format(doc.offer[0]))
+print ('ot={}'.format(ot))
+print ('vc={}'.format(vc))
 # Download
 print "Downloading %s..." % sizeof_fmt(doc.details.appDetails.installationSize),
 data = api.download(packagename, vc, ot)

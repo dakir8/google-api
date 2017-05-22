@@ -115,19 +115,25 @@ class GooglePlayAPI(object):
                                 "androidId": self.androidId,
                                 "app": "com.android.vending",
                                 #"client_sig": self.client_sig,
-                                "device_country": "fr",
-                                "operatorCountry": "fr",
-                                "lang": "fr",
-                                "sdk_version": "16"}
+                                "device_country": "us",
+                                "operatorCountry": "us",
+                                "lang": "en_US",
+                                "sdk_version": "23"}
             headers = {
                 "Accept-Encoding": "",
             }
             response = requests.post(self.URL_LOGIN, data=params, headers=headers, verify=False)
+            
+            print response
+            
             data = response.text.split()
+            
+            print data
+            
             params = {}
             for d in data:
                 if not "=" in d: continue
-                k, v = d.split("=")
+                k, v = d.split("=",1)
                 params[k.strip().lower()] = v.strip()
             if "auth" in params:
                 self.setAuthSubToken(params["auth"])
@@ -147,10 +153,14 @@ class GooglePlayAPI(object):
                                     "X-DFE-Device-Id": self.androidId,
                                     "X-DFE-Client-Id": "am-android-google",
                                     #"X-DFE-Logging-Id": self.loggingId2, # Deprecated?
-                                    "User-Agent": "Android-Finsky/3.7.13 (api=3,versionCode=8013013,sdk=16,device=crespo,hardware=herring,product=soju)",
+                                    "User-Agent": "Android-Finsky/6.8.44.F-all%20%5B0%5D%203087104 (api=3,versionCode=80684400,sdk=23,device=bullhead,hardware=bullhead,product=bullhead,platformVersionRelease=6.0.1,model=Nexus%205X,buildId=MHC19Q,isWideScreen=0)",
+                                    #"User-Agent": "Android-Finsky/7.7.31.O-all%20%5B0%5D%20%5BPR%5D%20153394623 (api=3,versionCode=80773100,sdk=25,device=bullhead,hardware=bullhead,product=bullhead,platformVersionRelease=7.1.1,model=Nexus%205X,buildId=N4F26I,isWideScreen=0)",
+                                    #"User-Agent": "Android-Finsky/5.6.8 (api=3,versionCode=80360800,sdk=21,device=A0001,hardware=bacon,product=bacon,platformVersionRelease=5.0.2,model=A0001,buildId=LRX22G,isWideScreen=0)",
+                                    #"User-Agent": "Android-Finsky/6.9.43 (versionCode=80694300,sdk=25,device=bullhead,hardware=bullhead,product=bullhead,model=Neux%205X,build=N4F26I:user)",
                                     "X-DFE-SmallestScreenWidthDp": "320",
                                     "X-DFE-Filter-Level": "3",
-                                    "Accept-Encoding": "",
+                                    #"Accept-Encoding": "",
+                                    "X-DFE-No-Prefetch": True,
                                     "Host": "android.clients.google.com"}
 
             if datapost is not None:
@@ -168,9 +178,10 @@ class GooglePlayAPI(object):
         gzipper = gzip.GzipFile(fileobj=data)
         data = gzipper.read()
         '''
+        
         message = googleplay_pb2.ResponseWrapper.FromString(data)
         self._try_register_preFetch(message)
-
+		
         # Debug
         #print text_format.MessageToString(message)
         return message
@@ -195,6 +206,8 @@ class GooglePlayAPI(object):
         packageName is the app unique ID (usually starting with 'com.')."""
         path = "details?doc=%s" % requests.utils.quote(packageName)
         message = self.executeRequestApi2(path)
+        print self.toStr(message)
+        
         return message.payload.detailsResponse
 
     def bulkDetails(self, packageNames):
@@ -263,7 +276,12 @@ class GooglePlayAPI(object):
         data = "ot=%d&doc=%s&vc=%d" % (offerType, packageName, versionCode)
         message = self.executeRequestApi2(path, data)
 
+        print message
+        
+        print message.commands.displayErrorMessage
+
         url = message.payload.buyResponse.purchaseStatusResponse.appDeliveryData.downloadUrl
+
         cookie = message.payload.buyResponse.purchaseStatusResponse.appDeliveryData.downloadAuthCookie[0]
 
         cookies = {
@@ -271,7 +289,7 @@ class GooglePlayAPI(object):
         }
 
         headers = {
-                   "User-Agent" : "AndroidDownloadManager/4.1.1 (Linux; U; Android 4.1.1; Nexus S Build/JRO03E)",
+                   "User-Agent" : "AndroidDownloadManager/6.0.1 (Linux; U; Android 6.0.1; Nexus 5X Build/MHC19Q)",
                    "Accept-Encoding": "",
                   }
 
